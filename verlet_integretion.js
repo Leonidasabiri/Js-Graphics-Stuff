@@ -10,6 +10,7 @@ class point
 	vx = 0;
 	oldx = 250;
 	oldy = 295;
+	g = 0.3;
 	constructor(x, y, r)
 	{
 		this.x = x;
@@ -31,7 +32,7 @@ class point
 		this.oldx = this.x;
 		this.x += this.vx;
 		this.y += this.vy;
-		this.y += 0.3;
+		this.y += this.g;
 		if (this.y >= 800 - this.r)
 		{
 			this.y = 800 - this.r;
@@ -58,46 +59,82 @@ class point
 
 class sticks
 {
+	dx = 0;
+	dy = 0;
+	offx = 0;
+	offy = 0;
+	d2 = 0;
+	d1 = 0;
+	diff = 0;
 	constructor(width, color)
 	{
 		ctx.lineWidth = width;
 		ctx.strokeStyle = color;
+		this.d1 = Math.sqrt(Math.pow(points[0].x - points[1].x, 2) + Math.pow(points[0].y - points[1].y, 2));
 	}
-	createstick(ps)
+	createstick(ps, d1)
 	{
+		console.log(this.d1);
 		for (let i = 0 ; i < ps.length ; i++)
 		{
+			let posx1 , posx2;
+			let posy1, posy2;
+			ctx.beginPath();
 			if (i + 1 < ps.length)
 			{
-				ctx.beginPath();
-				ctx.moveTo(ps[i].x, ps[i].y);
-				ctx.lineTo(ps[i + 1].x, ps[i + 1].y);
-				ctx.stroke();
+				this.dx = ps[i].x - ps[i + 1].x;
+				this.dy = ps[i].y - ps[i + 1].y;
+				this.d2 = Math.sqrt((this.dx * this.dx) + (this.dy * this.dy));
+				this.diff = this.d2 - this.d1;
+				this.offx = this.dx * (this.diff/this.d2)/2;
+				this.offy = this.dy * (this.diff/this.d2)/2;
+				ps[i].x -= this.offx;
+				ps[i + 1].x += this.offx;
+				ps[i].y -= this.offy;
+				ps[i + 1].y += this.offy;
+				posx1 = ps[i].x;
+				posx2 = ps[i + 1].x;
+				posy1 = ps[i].y;
+				posy2 = ps[i + 1].y;
 			}
-			else
-			{
-				ctx.beginPath();
-				ctx.moveTo(ps[i].x, ps[i].y);
-				ctx.lineTo(ps[0].x, ps[0].y);
-				ctx.stroke();
-			}
+			// else
+			// {
+			// 	posx1 = ps[i].x;
+			// 	posx2 = ps[0].x;
+			// 	posy1 = ps[i].y;
+			// 	posy2 = ps[0].y;
+			// }
+			ctx.moveTo(posx1, posy1);
+			ctx.lineTo(posx2, posy2);
+			ctx.stroke();
 		}
 	}
 }
 
-for (let i = 0; i < 10; i++)
-	points.push(new point(300 + Math.random() * 100, 300 + Math.random() * 100, 5));
+for (let i = 0; i < 16; i++)
+	points.push(new point(300 + i * 10, 300 + i * 10, 2));
 
 let stick = new sticks(2, "white");
 function loop()
 {
 	window.requestAnimationFrame(loop);
-	console.log(points.length);
 	ctx.fillStyle = "black";
 	ctx.fillRect(300, 200, 700, 600);
 	for (let i = 0 ; i < points.length ; i++)
+	{
+		if (i == 0)
+		{
+			points[i].g = 0;
+			points[i].vx = 0;
+			points[i].vy = 0;
+			points[i].y = 100;
+			points[i].x = 300;
+			points[i].oldx = 0;
+			points[i].oldy = 0;
+		}
 		points[i].pointupdate();
-	stick.createstick(points);
+	}
+	stick.createstick(points, 1);
 }
 
 window.requestAnimationFrame(loop);
