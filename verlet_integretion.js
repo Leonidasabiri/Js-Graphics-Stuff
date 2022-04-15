@@ -1,7 +1,9 @@
+// It's kinda interactive now
+
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 var rect = canvas.getBoundingClientRect();
-let clothres = 29;
+let clothres = 25;
 let points = [];
 let ps = new Array(2);
 let mousex, mousey;
@@ -55,19 +57,6 @@ class point
 		{
 			this.x = 300 + this.r;
 			this.oldx = this.x + this.vx * 0.9;
-		}
-		if (i > 0)
-		{
-			if (this.x == mousex)
-			{
-				this.x = 12;
-				this.oldx = this.x + this.vx * 0.9;
-			}
-			if (this.y == mousex)
-			{
-				this.y = 12;
-				this.oldy = this.y + this.vy * 0.9;
-			}
 		}
 		this.draw();
 	}
@@ -200,7 +189,7 @@ for (let i = 0; i < clothres * clothres ; i++)
 for (let i = 0 ; i <= clothres; i++)
 	for (let j = 0; j <= clothres ; j++)
 	{
-		let coordx = j * 3, coordy = i * 3;
+		let coordx = j * 23, coordy = i * 13;
 		ps[i].push(new point(370 + coordx, 300 + coordy, 1));
 		ps[i][j].oldx += coordx;
 		ps[i][j].oldy += coordy;
@@ -217,7 +206,16 @@ function cloth(fabric)
 	}
 	for (let i = 0 ; i < clothres; i++)
 		for (let j = 0; j < clothres ; j++)
+		{
+			if (Math.abs(fabric[i][j].x - mousex) < 14 && Math.abs(fabric[i][j].y - mousey) < 14)
+			{
+				if (fabric[i][j].x + 13 < 600)
+					fabric[i][j].x += 13;
+				if (fabric[i][j].y + 13 < 600)
+					fabric[i][j].y += 13;
+			}
 			fabric[i][j].pointupdate(i);
+		}
 	stick.clothsticks(fabric, clothres);
 }
 
@@ -253,7 +251,7 @@ function loop()
 	ctx.fillStyle = "black";
 	ctx.fillRect(300, 200, 700, 600);
 	cloth(ps);
-	rope();
+	//rope();
 }
 
 window.requestAnimationFrame(loop);
