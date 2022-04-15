@@ -1,15 +1,15 @@
-// It's kinda interactive now
-
+// Can be cut now
 var canvas = document.getElementById("c");
 var ctx = canvas.getContext("2d");
 var rect = canvas.getBoundingClientRect();
-let clothres = 25;
+let clothres = 26;
 let points = [];
 let ps = new Array(2);
 let mousex, mousey;
 
 class point
 {
+	cut = false;
 	vy = 0;
 	vx = 0;
 	oldx = 369;
@@ -136,41 +136,44 @@ class sticks
 				// let dists = this.calcdist(pss[i][j].x, pss[i + 1][j].x, pss[i][j].y, pss[i + 1][j].y);
 				ctx.beginPath();
 
-				this.dx = pss[i][j].x - pss[i + 1][j].x;
-				this.dy = pss[i][j].y - pss[i + 1][j].y;
-				this.d2 = Math.sqrt((this.dx * this.dx) + (this.dy * this.dy));
-				this.diff = this.d2 - this.d1;
-				this.offx = this.dx * (this.diff/this.d2)/2;
-				this.offy = this.dy * (this.diff/this.d2)/2;
-				pss[i][j].x -= this.offx;
-				pss[i + 1][j].x += this.offx;
-				pss[i][j].y -= this.offy;
-				pss[i + 1][j].y += this.offy;
+				if (pss[i][j].cut == false)
+				{
+					this.dx = pss[i][j].x - pss[i + 1][j].x;
+					this.dy = pss[i][j].y - pss[i + 1][j].y;
+					this.d2 = Math.sqrt((this.dx * this.dx) + (this.dy * this.dy));
+					this.diff = this.d2 - this.d1;
+					this.offx = this.dx * (this.diff/this.d2)/2;
+					this.offy = this.dy * (this.diff/this.d2)/2;
+					pss[i][j].x -= this.offx;
+					pss[i + 1][j].x += this.offx;
+					pss[i][j].y -= this.offy;
+					pss[i + 1][j].y += this.offy;
 
-				posx1 = pss[i][j].x;
-				posx2 = pss[i + 1][j].x;
-				posy1 = pss[i][j].y;
-				posy2 = pss[i + 1][j].y;
-				ctx.moveTo(posx1, posy1);
-				ctx.lineTo(posx2, posy2);
-				
-				this.dx = pss[i][j].x - pss[i][j + 1].x;
-				this.dy = pss[i][j].y - pss[i][j + 1].y;
-				this.d2 = Math.sqrt((this.dx * this.dx) + (this.dy * this.dy));
-				this.diff = this.d2 - this.d1;
-				this.offx = this.dx * (this.diff/this.d2)/2;
-				this.offy = this.dy * (this.diff/this.d2)/2;
-				pss[i][j].x -= this.offx;
-				pss[i][j + 1].x += this.offx;
-				pss[i][j].y -= this.offy;
-				pss[i][j + 1].y += this.offy;
+					posx1 = pss[i][j].x;
+					posx2 = pss[i + 1][j].x;
+					posy1 = pss[i][j].y;
+					posy2 = pss[i + 1][j].y;
+					ctx.moveTo(posx1, posy1);
+					ctx.lineTo(posx2, posy2);
+					
+					this.dx = pss[i][j].x - pss[i][j + 1].x;
+					this.dy = pss[i][j].y - pss[i][j + 1].y;
+					this.d2 = Math.sqrt((this.dx * this.dx) + (this.dy * this.dy));
+					this.diff = this.d2 - this.d1;
+					this.offx = this.dx * (this.diff/this.d2)/2;
+					this.offy = this.dy * (this.diff/this.d2)/2;
+					pss[i][j].x -= this.offx;
+					pss[i][j + 1].x += this.offx;
+					pss[i][j].y -= this.offy;
+					pss[i][j + 1].y += this.offy;
 
-				posx1 = pss[i][j].x;
-				posx2 = pss[i][j + 1].x;
-				posy1 = pss[i][j].y;
-				posy2 = pss[i][j + 1].y;
-				ctx.moveTo(posx1, posy1);
-				ctx.lineTo(posx2, posy2);
+					posx1 = pss[i][j].x;
+					posx2 = pss[i][j + 1].x;
+					posy1 = pss[i][j].y;
+					posy2 = pss[i][j + 1].y;
+					ctx.moveTo(posx1, posy1);
+					ctx.lineTo(posx2, posy2);
+				}
 				ctx.stroke();
 			}
 	}
@@ -190,7 +193,7 @@ for (let i = 0 ; i <= clothres; i++)
 	for (let j = 0; j <= clothres ; j++)
 	{
 		let coordx = j * 23, coordy = i * 13;
-		ps[i].push(new point(370 + coordx, 300 + coordy, 1));
+		ps[i].push(new point(370 + coordx, 300 + coordy, 0.5));
 		ps[i][j].oldx += coordx;
 		ps[i][j].oldy += coordy;
 	}
@@ -209,10 +212,21 @@ function cloth(fabric)
 		{
 			if (Math.abs(fabric[i][j].x - mousex) < 14 && Math.abs(fabric[i][j].y - mousey) < 14)
 			{
-				if (fabric[i][j].x + 13 < 600)
-					fabric[i][j].x += 13;
-				if (fabric[i][j].y + 13 < 600)
-					fabric[i][j].y += 13;
+				fabric[i][j].cut = true;
+				// if (fabric[i][j].x + 13 < 600 || fabric[i][j].x - 13 > 300)
+				// {
+				// 	if (fabric[i][j].x - mousex < 0)
+				// 		fabric[i][j].x += 21;
+				// 	if (fabric[i][j].x - mousex > 0)
+				// 		fabric[i][j].x -= 21;
+				// }
+				// if (fabric[i][j].y + 13 < 600 || fabric[i][j].y - 13 > 250)
+				// {
+				// 	if (fabric[i][j].y - mousey < 0)
+				// 		fabric[i][j].y += 1;
+				// 	if (fabric[i][j].y - mousey > 0)
+				// 		fabric[i][j].y -= 1;
+				// }
 			}
 			fabric[i][j].pointupdate(i);
 		}
